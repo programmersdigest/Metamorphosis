@@ -1,0 +1,18 @@
+{
+  "Components": [
+    {
+      "Name": "ConsoleLogger",
+      "Type": "Metamorphosis.Logging.ConsoleLogger"
+    },
+    {
+      "Name": "TestComponent",
+      "Type": "Metamorphosis.Playground.TestComponent",
+      "Endpoints": {
+        "Log": {
+          "Sender": "ConsoleLogger",
+          "Capability": "Log"
+        }
+      }
+    }
+  ]
+}
