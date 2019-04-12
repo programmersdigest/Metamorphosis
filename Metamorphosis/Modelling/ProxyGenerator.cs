@@ -65,19 +65,26 @@ namespace Metamorphosis.Modelling
 
             foreach (var signal in componentDefinition.Signals)
             {
-                var connection = signal.Connections.First();   // We do not support multiple connections at this point.
+                var connection = signal.Connections.FirstOrDefault();   // We do not support multiple connections at this point.
 
-                var receiver = dependenciesDictionary[connection.Receiver];
-                var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
-                    .Single(m => m.Name == connection.SignalName &&
-                                 m.GetCustomAttribute<TriggerAttribute>() != null &&
-                                 m.IsMethodDefinitionCompatible(signal.SignalMethod)
-                    );
+                if (connection != null)
+                {
+                    var receiver = dependenciesDictionary[connection.Receiver];
+                    var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
+                        .Single(m => m.Name == connection.SignalName &&
+                                     m.GetCustomAttribute<TriggerAttribute>() != null &&
+                                     m.IsMethodDefinitionCompatible(signal.SignalMethod)
+                        );
 
-                var signalMethodOverride = PrepareMethodOverride(proxyTypeBuilder, signal.SignalMethod);
-                GenerateIL(signalMethodOverride, receiver.FieldBuilder, triggerMethod);
+                    var signalMethodOverride = PrepareMethodOverride(proxyTypeBuilder, signal.SignalMethod);
+                    GenerateIL(signalMethodOverride, receiver.FieldBuilder, triggerMethod);
 
-                proxyTypeBuilder.DefineMethodOverride(signalMethodOverride, signal.SignalMethod);
+                    proxyTypeBuilder.DefineMethodOverride(signalMethodOverride, signal.SignalMethod);
+                }
+                else if (signal.SignalMethod.IsAbstract)
+                {
+                    throw new InvalidOperationException($"{componentDefinition.Name}.{signal.SignalMethod.Name} is mandatory. Please define a connection.");
+                }
             }
 
             componentDefinition.ProxyType = proxyTypeBuilder.CreateTypeInfo();
