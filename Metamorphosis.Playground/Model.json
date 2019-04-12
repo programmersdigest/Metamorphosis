@@ -6,13 +6,13 @@
     },
     {
       "Name": "TestComponent",
-      "Type": "Metamorphosis.Playground.TestComponent",
-      "Endpoints": {
-        "Log": {
-          "Sender": "ConsoleLogger",
-          "Capability": "Log"
-        }
-      }
+      "Type": "Metamorphosis.Playground.TestComponent"
+    }
+  ],
+  "Connections": [
+    {
+      "Signal": "TestComponent.Log",
+      "Trigger": "ConsoleLogger.Log"
     }
   ],
   "Assemblies": [

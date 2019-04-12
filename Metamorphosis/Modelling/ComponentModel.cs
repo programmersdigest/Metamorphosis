@@ -6,6 +6,5 @@ namespace Metamorphosis.Modelling
     {
         public string Name { get; set; }
         public string Type { get; set; }
-        public IReadOnlyDictionary<string, EndpointModel> Endpoints { get; } = new Dictionary<string, EndpointModel>();
     }
 }

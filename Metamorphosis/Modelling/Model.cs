@@ -6,5 +6,6 @@ namespace Metamorphosis.Modelling
     {
         public IReadOnlyList<string> Assemblies { get; } = new List<string>();
         public IReadOnlyList<ComponentModel> Components { get; } = new List<ComponentModel>();
+        public IReadOnlyList<ConnectionModel> Connections { get; } = new List<ConnectionModel>();
     }
 }

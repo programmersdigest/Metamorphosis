@@ -20,10 +20,11 @@ namespace Metamorphosis.Modelling
 
         public List<ComponentDefinition> GenerateComponentDefinitions(Model model)
         {
-            return model.Components.Select(GenerateComponentDefinition).ToList();
+            return model.Components.Select(c => GenerateComponentDefinition(c, model.Connections))
+                .ToList();
         }
 
-        private ComponentDefinition GenerateComponentDefinition(ComponentModel componentModel)
+        private ComponentDefinition GenerateComponentDefinition(ComponentModel componentModel, IReadOnlyList<ConnectionModel> connections)
         {
             var name = componentModel.Name;
             var baseType = _loadedTypes[componentModel.Type];
@@ -33,12 +34,13 @@ namespace Metamorphosis.Modelling
                 .Select(m => new RequirementDefinition
                 {
                     ReceiverMethod = m,
-                    Sender = componentModel.Endpoints[m.Name].Sender,
-                    Capability = componentModel.Endpoints[m.Name].Capability
+                    Connections = connections.Where(c => c.Sender == componentModel.Name && c.SignalName == m.Name)
+                                             .ToList()
                 })
                 .ToList();
 
-            var dependencies = requirements.GroupBy(r => r.Sender)
+            var dependencies = requirements.SelectMany(r => r.Connections)
+                .GroupBy(c => c.Receiver)
                 .Select(g => new DependencyDefinition
                 {
                     Name = g.Key

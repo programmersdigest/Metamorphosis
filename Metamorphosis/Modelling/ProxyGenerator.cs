@@ -65,15 +65,17 @@ namespace Metamorphosis.Modelling
 
             foreach (var requirement in componentDefinition.Requirements)
             {
-                var sender = dependenciesDictionary[requirement.Sender];
-                var senderMethod = sender.ComponentDefinition.ProxyType.GetMethods()
-                    .Single(m => m.Name == requirement.Capability &&
+                var connection = requirement.Connections.First();   // We do not support multiple connections at this point.
+
+                var receiver = dependenciesDictionary[connection.Receiver];
+                var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
+                    .Single(m => m.Name == connection.SignalName &&
                                  m.GetCustomAttribute<CapabilityAttribute>() != null &&
                                  m.IsMethodDefinitionCompatible(requirement.ReceiverMethod)
                     );
 
                 var methodOverride = PrepareMethodOverride(proxyTypeBuilder, requirement.ReceiverMethod);
-                GenerateIL(methodOverride, sender.FieldBuilder, senderMethod);
+                GenerateIL(methodOverride, receiver.FieldBuilder, triggerMethod);
 
                 proxyTypeBuilder.DefineMethodOverride(methodOverride, requirement.ReceiverMethod);
             }
