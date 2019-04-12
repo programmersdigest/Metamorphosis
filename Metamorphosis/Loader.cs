@@ -31,6 +31,23 @@ namespace Metamorphosis
                 model = serializer.Deserialize<Model>(jsonReader);
             }
 
+            foreach (var assemblyFilename in model.Assemblies)
+            {
+                if (AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == assemblyFilename))
+                {
+                    continue;
+                }
+
+                if (File.Exists(assemblyFilename + ".dll"))
+                {
+                    Assembly.LoadFrom(assemblyFilename + ".dll");
+                }
+                else
+                {
+                    Assembly.LoadFrom(assemblyFilename + ".so");
+                }
+            }
+
             var componentDefinitionGenerator = new ComponentDefinitionGenerator();
             var componentDefinitions = componentDefinitionGenerator.GenerateComponentDefinitions(model);
 
