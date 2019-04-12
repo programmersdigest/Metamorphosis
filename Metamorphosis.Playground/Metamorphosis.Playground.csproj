@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Metamorphosis.Logging\Metamorphosis.Logging.csproj" />
     <ProjectReference Include="..\Metamorphosis\Metamorphosis.csproj" />
   </ItemGroup>
 

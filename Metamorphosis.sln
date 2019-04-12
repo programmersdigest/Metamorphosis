@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metamorphosis", "Metamorpho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metamorphosis.Playground", "Metamorphosis.Playground\Metamorphosis.Playground.csproj", "{7FA7AFE0-8ECB-4624-8778-CBFD2DA3F833}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metamorphosis.Tests", "Metamorphosis.Tests\Metamorphosis.Tests.csproj", "{6654830F-013C-4FC0-A1A5-71213DC18497}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metamorphosis.Tests", "Metamorphosis.Tests\Metamorphosis.Tests.csproj", "{6654830F-013C-4FC0-A1A5-71213DC18497}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metamorphosis.Logging", "Metamorphosis.Logging\Metamorphosis.Logging.csproj", "{ADA96FBE-D4D7-4522-A77B-5EEA6E975390}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{6654830F-013C-4FC0-A1A5-71213DC18497}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6654830F-013C-4FC0-A1A5-71213DC18497}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6654830F-013C-4FC0-A1A5-71213DC18497}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADA96FBE-D4D7-4522-A77B-5EEA6E975390}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADA96FBE-D4D7-4522-A77B-5EEA6E975390}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADA96FBE-D4D7-4522-A77B-5EEA6E975390}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADA96FBE-D4D7-4522-A77B-5EEA6E975390}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
