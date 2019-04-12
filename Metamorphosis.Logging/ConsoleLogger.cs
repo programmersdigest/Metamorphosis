@@ -8,7 +8,7 @@ namespace Metamorphosis.Logging
     [Component]
     public abstract class ConsoleLogger
     {
-        [Capability]
+        [Trigger]
         public void Log(object item, LogLevel logLevel = LogLevel.Info)
         {
             switch (item)

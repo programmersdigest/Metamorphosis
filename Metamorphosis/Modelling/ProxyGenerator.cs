@@ -63,21 +63,21 @@ namespace Metamorphosis.Modelling
 
             var dependenciesDictionary = GenerateDependencyFields(proxyTypeBuilder, componentDefinition.Dependencies);
 
-            foreach (var requirement in componentDefinition.Requirements)
+            foreach (var signal in componentDefinition.Signals)
             {
-                var connection = requirement.Connections.First();   // We do not support multiple connections at this point.
+                var connection = signal.Connections.First();   // We do not support multiple connections at this point.
 
                 var receiver = dependenciesDictionary[connection.Receiver];
                 var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
                     .Single(m => m.Name == connection.SignalName &&
-                                 m.GetCustomAttribute<CapabilityAttribute>() != null &&
-                                 m.IsMethodDefinitionCompatible(requirement.ReceiverMethod)
+                                 m.GetCustomAttribute<TriggerAttribute>() != null &&
+                                 m.IsMethodDefinitionCompatible(signal.SignalMethod)
                     );
 
-                var methodOverride = PrepareMethodOverride(proxyTypeBuilder, requirement.ReceiverMethod);
-                GenerateIL(methodOverride, receiver.FieldBuilder, triggerMethod);
+                var signalMethodOverride = PrepareMethodOverride(proxyTypeBuilder, signal.SignalMethod);
+                GenerateIL(signalMethodOverride, receiver.FieldBuilder, triggerMethod);
 
-                proxyTypeBuilder.DefineMethodOverride(methodOverride, requirement.ReceiverMethod);
+                proxyTypeBuilder.DefineMethodOverride(signalMethodOverride, signal.SignalMethod);
             }
 
             componentDefinition.ProxyType = proxyTypeBuilder.CreateTypeInfo();
@@ -100,23 +100,24 @@ namespace Metamorphosis.Modelling
 
         private MethodBuilder PrepareMethodOverride(TypeBuilder typeBuilder, MethodInfo baseMethod)
         {
-            var receiverMethodParameters = baseMethod.GetParameters().Select(p => p.ParameterType).ToArray();
-            var methodOverride = typeBuilder.DefineMethod(baseMethod.Name,
-                                                          MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
-                                                          baseMethod.ReturnType, receiverMethodParameters);
+            var signalMethodParameters = baseMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            var signalMethodOverride = typeBuilder.DefineMethod(baseMethod.Name,
+                MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
+                baseMethod.ReturnType, signalMethodParameters);
+
             if (baseMethod.IsGenericMethod)
             {
-                var receiverMethodGenericParameters = baseMethod.GetGenericArguments().ToList();
-                var genericParameters = methodOverride.DefineGenericParameters(receiverMethodGenericParameters.Select(a => a.Name).ToArray());
+                var signalMethodGenericParameters = baseMethod.GetGenericArguments().ToList();
+                var genericParameters = signalMethodOverride.DefineGenericParameters(signalMethodGenericParameters.Select(a => a.Name).ToArray());
                 for (var i = 0; i < genericParameters.Length; i++)
                 {
-                    var baseTypeConstraint = receiverMethodGenericParameters[i].GetGenericParameterConstraints().SingleOrDefault(c => !c.IsInterface);
+                    var baseTypeConstraint = signalMethodGenericParameters[i].GetGenericParameterConstraints().SingleOrDefault(c => !c.IsInterface);
                     if (baseTypeConstraint != null)
                     {
                         genericParameters[i].SetBaseTypeConstraint(baseTypeConstraint);
                     }
 
-                    var interfaceConstraints = receiverMethodGenericParameters[i].GetGenericParameterConstraints().Where(c => c.IsInterface).ToArray();
+                    var interfaceConstraints = signalMethodGenericParameters[i].GetGenericParameterConstraints().Where(c => c.IsInterface).ToArray();
                     if (interfaceConstraints.Any())
                     {
                         genericParameters[i].SetInterfaceConstraints(interfaceConstraints);
@@ -124,22 +125,21 @@ namespace Metamorphosis.Modelling
                 }
             }
 
-            return methodOverride;
+            return signalMethodOverride;
         }
 
-        private void GenerateIL(MethodBuilder methodBuilder, FieldBuilder senderFieldBuilder, MethodInfo senderMethod)
+        private void GenerateIL(MethodBuilder methodBuilder, FieldBuilder receiverFieldBuilder, MethodInfo triggerMethod)
         {
             var ilGenerator = methodBuilder.GetILGenerator();
 
-            ilGenerator.Emit(OpCodes.Ldarg_0);                              // Load "this".
-            ilGenerator.Emit(OpCodes.Ldfld, senderFieldBuilder);            // Load instance from field.
-            for (var i = 1; i <= senderMethod.GetParameters().Length; i++)
+            ilGenerator.Emit(OpCodes.Ldarg_0);                                  // Load "this".
+            ilGenerator.Emit(OpCodes.Ldfld, receiverFieldBuilder);              // Load receiver from field.
+            for (var i = 1; i <= triggerMethod.GetParameters().Length; i++)
             {
-                ilGenerator.Emit(OpCodes.Ldarg, i);                         // Load all parameters.
+                ilGenerator.Emit(OpCodes.Ldarg, i);                             // Load all parameters.
             }
-            ilGenerator.Emit(OpCodes.Callvirt, senderMethod);               // Call method on field instance.
-            ilGenerator.Emit(OpCodes.Ret);                                  // Return to caller.
+            ilGenerator.Emit(OpCodes.Callvirt, triggerMethod);                  // Call trigger method on receiver instance.
+            ilGenerator.Emit(OpCodes.Ret);                                      // Return to caller.
         }
-
     }
 }

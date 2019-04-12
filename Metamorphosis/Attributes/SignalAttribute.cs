@@ -2,7 +2,7 @@
 
 namespace Metamorphosis.Attributes
 {
-    public class CapabilityAttribute : Attribute
+    public class SignalAttribute : Attribute
     {
     }
 }

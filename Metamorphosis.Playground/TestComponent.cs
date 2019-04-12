@@ -6,7 +6,7 @@ namespace Metamorphosis.Playground
     [Component]
     public abstract class TestComponent
     {
-        [Requirement]
+        [Signal]
         public abstract void Log(object item, LogLevel logLevel = LogLevel.Info);
 
         [Startup]
@@ -15,7 +15,7 @@ namespace Metamorphosis.Playground
             Log("I'm Running!!!");
         }
 
-        [Capability]
+        [Trigger]
         public void TestMe()
         {
             Log("This is a test!");

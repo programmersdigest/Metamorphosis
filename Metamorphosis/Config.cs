@@ -15,7 +15,7 @@ namespace Metamorphosis
             _values = values;
         }
 
-        [Capability]
+        [Trigger]
         public object Get(string key, Type type, object defaultValue)
         {
             if (!_values.TryGetValue(key, out var value))

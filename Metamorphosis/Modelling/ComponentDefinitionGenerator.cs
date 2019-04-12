@@ -29,17 +29,17 @@ namespace Metamorphosis.Modelling
             var name = componentModel.Name;
             var baseType = _loadedTypes[componentModel.Type];
 
-            var requirements = baseType.GetMethods()
-                .Where(m => m.IsAbstract && m.GetCustomAttribute<RequirementAttribute>() != null)
-                .Select(m => new RequirementDefinition
+            var signals = baseType.GetMethods()
+                .Where(m => m.IsAbstract && m.GetCustomAttribute<SignalAttribute>() != null)
+                .Select(m => new SignalDefinition
                 {
-                    ReceiverMethod = m,
+                    SignalMethod = m,
                     Connections = connections.Where(c => c.Sender == componentModel.Name && c.SignalName == m.Name)
                                              .ToList()
                 })
                 .ToList();
 
-            var dependencies = requirements.SelectMany(r => r.Connections)
+            var dependencies = signals.SelectMany(r => r.Connections)
                 .GroupBy(c => c.Receiver)
                 .Select(g => new DependencyDefinition
                 {
@@ -51,7 +51,7 @@ namespace Metamorphosis.Modelling
             {
                 Name = name,
                 BaseType = baseType,
-                Requirements = requirements,
+                Signals = signals,
                 Dependencies = dependencies
             };
         }

@@ -11,7 +11,7 @@ namespace Metamorphosis.Logging
         private const string ConfigKeyLogFilename = "Logfile";
         private const string DefaultLogFilename = "log.txt";
 
-        [Requirement]
+        [Signal]
         protected abstract T GetConfigValue<T>(string key, T defaultValue);
 
         private StreamWriter _writer;
@@ -29,13 +29,13 @@ namespace Metamorphosis.Logging
             _writer?.Dispose();
         }
 
-        [Capability]
+        [Trigger]
         public void Log(string message, LogLevel logLevel = LogLevel.Info)
         {
             _writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {logLevel}: {message}");
         }
 
-        [Capability]
+        [Trigger]
         public void Log(Exception ex, LogLevel logLevel = LogLevel.Error)
         {
             var messageBuilder = new StringBuilder();

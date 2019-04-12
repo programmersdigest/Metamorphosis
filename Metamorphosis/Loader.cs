@@ -12,7 +12,7 @@ namespace Metamorphosis
     internal sealed class Loader
     {
         private readonly string _modelFilename;
-        private Dictionary<string, object> _components = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _components = new Dictionary<string, object>();
 
         public Loader(string modelFilename)
         {

@@ -2,7 +2,7 @@
 
 namespace Metamorphosis.Attributes
 {
-    public class RequirementAttribute : Attribute
+    public class TriggerAttribute : Attribute
     {
     }
 }
