@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Metamorphosis.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -29,7 +30,7 @@ namespace Metamorphosis.Modelling
 
             var requirements = baseType.GetMethods()
                 .Where(m => m.IsAbstract && m.GetCustomAttribute<RequirementAttribute>() != null)
-                .Select(m => new Requirement
+                .Select(m => new RequirementDefinition
                 {
                     ReceiverMethod = m,
                     Sender = componentModel.Endpoints[m.Name].Sender,
@@ -38,7 +39,7 @@ namespace Metamorphosis.Modelling
                 .ToList();
 
             var dependencies = requirements.GroupBy(r => r.Sender)
-                .Select(g => new Dependency
+                .Select(g => new DependencyDefinition
                 {
                     Name = g.Key
                 })

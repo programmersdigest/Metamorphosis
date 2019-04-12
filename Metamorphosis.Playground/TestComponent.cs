@@ -1,4 +1,5 @@
-﻿using Metamorphosis.Logging;
+﻿using Metamorphosis.Attributes;
+using Metamorphosis.Logging;
 
 namespace Metamorphosis.Playground
 {

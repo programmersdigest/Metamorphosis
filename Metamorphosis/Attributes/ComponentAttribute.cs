@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Metamorphosis
+namespace Metamorphosis.Attributes
 {
     public class ComponentAttribute : Attribute
     {

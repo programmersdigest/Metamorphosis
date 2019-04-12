@@ -1,11 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Metamorphosis.Attributes;
+using Metamorphosis.Modelling;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace Metamorphosis.Modelling
+namespace Metamorphosis
 {
     internal sealed class Loader
     {

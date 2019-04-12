@@ -8,8 +8,8 @@ namespace Metamorphosis.Modelling
         public string Name { get; set; }
         public Type BaseType { get; set; }
         public Type ProxyType { get; set; }
-        public List<Dependency> Dependencies { get; set; }
-        public List<Requirement> Requirements { get; set; }
+        public List<DependencyDefinition> Dependencies { get; set; }
+        public List<RequirementDefinition> Requirements { get; set; }
         public object Instance { get; internal set; }
     }
 }

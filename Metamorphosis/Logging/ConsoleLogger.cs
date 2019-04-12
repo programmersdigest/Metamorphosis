@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Metamorphosis.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Text;
 

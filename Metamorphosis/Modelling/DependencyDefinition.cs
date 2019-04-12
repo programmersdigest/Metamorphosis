@@ -2,7 +2,7 @@
 
 namespace Metamorphosis.Modelling
 {
-    internal class Dependency
+    internal class DependencyDefinition
     {
         public string Name { get; set; }
         public ComponentDefinition ComponentDefinition { get; set; }

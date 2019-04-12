@@ -1,6 +1,4 @@
-﻿using Metamorphosis.Modelling;
-
-namespace Metamorphosis
+﻿namespace Metamorphosis
 {
     public sealed class App
     {

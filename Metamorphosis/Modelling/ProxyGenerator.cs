@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Metamorphosis.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -80,9 +81,9 @@ namespace Metamorphosis.Modelling
             componentDefinition.ProxyType = proxyTypeBuilder.CreateTypeInfo();
         }
 
-        private Dictionary<string, Dependency> GenerateDependencyFields(TypeBuilder typeBuilder, List<Dependency> dependencies)
+        private Dictionary<string, DependencyDefinition> GenerateDependencyFields(TypeBuilder typeBuilder, List<DependencyDefinition> dependencies)
         {
-            var dependenciesDictionary = new Dictionary<string, Dependency>();
+            var dependenciesDictionary = new Dictionary<string, DependencyDefinition>();
 
             foreach (var dependency in dependencies)
             {

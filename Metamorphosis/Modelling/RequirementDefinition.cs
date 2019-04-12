@@ -2,7 +2,7 @@
 
 namespace Metamorphosis.Modelling
 {
-    internal class Requirement
+    internal class RequirementDefinition
     {
         public MethodInfo ReceiverMethod { get; set; }
         public string Sender { get; set; }
