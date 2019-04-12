@@ -10,22 +10,18 @@ namespace Metamorphosis.Playground
         public abstract void Log(object item, LogLevel logLevel = LogLevel.Info);
 
         [Signal]
-        public virtual void TestOptionalSignal()
+        public virtual int Add(int a, int b)
         {
-            Log("TestOptionalSignal called.");
+            return a - b;
         }
 
         [Startup]
         public void Startup()
         {
             Log("I'm Running!!!");
-            TestOptionalSignal();
-        }
 
-        [Trigger]
-        public void TestMe()
-        {
-            Log("This is a test!");
+            var result = Add(17, 13);
+            Log(result);
         }
     }
 }

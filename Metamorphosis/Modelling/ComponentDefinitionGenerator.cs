@@ -30,7 +30,7 @@ namespace Metamorphosis.Modelling
             var baseType = _loadedTypes[componentModel.Type];
 
             var signals = baseType.GetMethods()
-                .Where(m => m.IsAbstract && m.GetCustomAttribute<SignalAttribute>() != null)
+                .Where(m => m.GetCustomAttribute<SignalAttribute>() != null)
                 .Select(m => new SignalDefinition
                 {
                     SignalMethod = m,

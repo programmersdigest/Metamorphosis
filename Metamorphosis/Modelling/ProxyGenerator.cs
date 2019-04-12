@@ -65,25 +65,23 @@ namespace Metamorphosis.Modelling
 
             foreach (var signal in componentDefinition.Signals)
             {
-                var connection = signal.Connections.FirstOrDefault();   // We do not support multiple connections at this point.
-
-                if (connection != null)
+                if (signal.Connections.Count() <= 0)
                 {
-                    var receiver = dependenciesDictionary[connection.Receiver];
-                    var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
-                        .Single(m => m.Name == connection.SignalName &&
-                                     m.GetCustomAttribute<TriggerAttribute>() != null &&
-                                     m.IsMethodDefinitionCompatible(signal.SignalMethod)
-                        );
+                    if (signal.SignalMethod.IsAbstract)
+                    {
+                        throw new InvalidOperationException($"{componentDefinition.Name}.{signal.SignalMethod.Name} is mandatory. Please define a connection.");
+                    }
+                }
+                else
+                {
+                    if (signal.Connections.Count() > 1 && signal.SignalMethod.ReturnType != typeof(void))
+                    {
+                        throw new InvalidOperationException($"{componentDefinition.Name}.{signal.SignalMethod.Name} cannot be used with multiple connections because it expects a single return value.");
+                    }
 
                     var signalMethodOverride = PrepareMethodOverride(proxyTypeBuilder, signal.SignalMethod);
-                    GenerateIL(signalMethodOverride, receiver.FieldBuilder, triggerMethod);
-
+                    GenerateIL(signalMethodOverride, signal, dependenciesDictionary);
                     proxyTypeBuilder.DefineMethodOverride(signalMethodOverride, signal.SignalMethod);
-                }
-                else if (signal.SignalMethod.IsAbstract)
-                {
-                    throw new InvalidOperationException($"{componentDefinition.Name}.{signal.SignalMethod.Name} is mandatory. Please define a connection.");
                 }
             }
 
@@ -135,17 +133,28 @@ namespace Metamorphosis.Modelling
             return signalMethodOverride;
         }
 
-        private void GenerateIL(MethodBuilder methodBuilder, FieldBuilder receiverFieldBuilder, MethodInfo triggerMethod)
+        private void GenerateIL(MethodBuilder methodBuilder, SignalDefinition signal, Dictionary<string, DependencyDefinition> dependencies)
         {
             var ilGenerator = methodBuilder.GetILGenerator();
-
-            ilGenerator.Emit(OpCodes.Ldarg_0);                                  // Load "this".
-            ilGenerator.Emit(OpCodes.Ldfld, receiverFieldBuilder);              // Load receiver from field.
-            for (var i = 1; i <= triggerMethod.GetParameters().Length; i++)
+            
+            foreach (var connection in signal.Connections)
             {
-                ilGenerator.Emit(OpCodes.Ldarg, i);                             // Load all parameters.
+                var receiver = dependencies[connection.Receiver];
+                var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
+                    .Single(m => m.Name == connection.SignalName &&
+                                 m.GetCustomAttribute<TriggerAttribute>() != null &&
+                                 m.IsMethodDefinitionCompatible(signal.SignalMethod)
+                    );
+
+                ilGenerator.Emit(OpCodes.Ldarg_0);                                  // Load "this".
+                ilGenerator.Emit(OpCodes.Ldfld, receiver.FieldBuilder);             // Load receiver from field.
+                for (var i = 1; i <= triggerMethod.GetParameters().Length; i++)
+                {
+                    ilGenerator.Emit(OpCodes.Ldarg, i);                             // Load all parameters.
+                }
+                ilGenerator.Emit(OpCodes.Callvirt, triggerMethod);                  // Call trigger method on receiver instance.
             }
-            ilGenerator.Emit(OpCodes.Callvirt, triggerMethod);                  // Call trigger method on receiver instance.
+
             ilGenerator.Emit(OpCodes.Ret);                                      // Return to caller.
         }
     }

@@ -1,18 +1,34 @@
 {
   "Components": [
     {
-      "Name": "ConsoleLogger",
+      "Name": "ConsoleLogger1",
+      "Type": "Metamorphosis.Logging.ConsoleLogger"
+    },
+    {
+      "Name": "ConsoleLogger2",
       "Type": "Metamorphosis.Logging.ConsoleLogger"
     },
     {
       "Name": "TestComponent",
       "Type": "Metamorphosis.Playground.TestComponent"
+    },
+    {
+      "Name": "SumComponent",
+      "Type": "Metamorphosis.Playground.SumComponent"
     }
   ],
   "Connections": [
     {
       "Signal": "TestComponent.Log",
-      "Trigger": "ConsoleLogger.Log"
+      "Trigger": "ConsoleLogger1.Log"
+    },
+    {
+      "Signal": "TestComponent.Log",
+      "Trigger": "ConsoleLogger2.Log"
+    },
+    {
+      "Signal": "TestComponent.Add",
+      "Trigger": "SumComponent.Add"
     }
   ],
   "Assemblies": [
