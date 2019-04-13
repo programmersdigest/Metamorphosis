@@ -8,7 +8,7 @@ namespace Metamorphosis.Modelling
 {
     internal sealed class ComponentDefinitionGenerator
     {
-        private readonly Dictionary<string, Type> _loadedTypes;
+        private readonly IReadOnlyDictionary<string, Type> _loadedTypes;
 
         public ComponentDefinitionGenerator()
         {
@@ -18,10 +18,9 @@ namespace Metamorphosis.Modelling
                 .ToDictionary(t => t.FullName);
         }
 
-        public List<ComponentDefinition> GenerateComponentDefinitions(Model model)
+        public IReadOnlyList<ComponentDefinition> GenerateComponentDefinitions(Model model)
         {
-            return model.Components.Select(c => GenerateComponentDefinition(c, model.Connections))
-                .ToList();
+            return model.Components.Select(c => GenerateComponentDefinition(c, model.Connections)).ToList();
         }
 
         private ComponentDefinition GenerateComponentDefinition(ComponentModel componentModel, IReadOnlyList<ConnectionModel> connections)

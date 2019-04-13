@@ -22,7 +22,7 @@ namespace Metamorphosis.Modelling
             _moduleBuilder = _assemblyBuilder.DefineDynamicModule("Metamorphosis.DynamicProxies");
         }
 
-        public void GenerateProxyTypes(List<ComponentDefinition> componentDefinitions)
+        public void GenerateProxyTypes(IReadOnlyList<ComponentDefinition> componentDefinitions)
         {
             _componentDefinitions = componentDefinitions.ToDictionary(cd => cd.Name);
 

@@ -11,7 +11,7 @@ namespace Metamorphosis
     internal sealed class Loader
     {
         private readonly string _modelFilename;
-        private readonly Dictionary<string, object> _components = new Dictionary<string, object>();
+        private IReadOnlyList<ComponentDefinition> _componentDefinitions;
 
         public Loader(string modelFilename)
         {
@@ -48,22 +48,20 @@ namespace Metamorphosis
             }
 
             var componentDefinitionGenerator = new ComponentDefinitionGenerator();
-            var componentDefinitions = componentDefinitionGenerator.GenerateComponentDefinitions(model);
+            _componentDefinitions = componentDefinitionGenerator.GenerateComponentDefinitions(model);
 
             var proxyGenerator = new ProxyGenerator();
-            proxyGenerator.GenerateProxyTypes(componentDefinitions);
+            proxyGenerator.GenerateProxyTypes(_componentDefinitions);
 
-            foreach (var componentDefinition in componentDefinitions)
+            foreach (var componentDefinition in _componentDefinitions)
             {
                 CreateProxyInstancesRecursive(componentDefinition);
-
-                _components[componentDefinition.Name] = componentDefinition.Instance;
             }
         }
 
         public void Run()
         {
-            var lifetimeService = _components.Values.OfType<Lifecycle>().FirstOrDefault();
+            var lifetimeService = _componentDefinitions.FirstOrDefault(cd => cd.BaseType == typeof(Lifecycle))?.Instance as Lifecycle;
             lifetimeService?.SignalStartup();
 
             Console.WriteLine("Press \"q\" to quit.");
@@ -74,10 +72,7 @@ namespace Metamorphosis
             Console.WriteLine("Shutting down.");
 
             lifetimeService?.SignalShutdown();
-            foreach (var component in _components.Values)
-            {
-                DisposeProxyInstancesRecursive(component);
-            }
+            DisposeProxyInstancesRecursive();
         }
 
         private void CreateProxyInstancesRecursive(ComponentDefinition componentDefinition)
@@ -100,23 +95,30 @@ namespace Metamorphosis
             componentDefinition.Instance = instance;
         }
 
-        private void DisposeProxyInstancesRecursive(object component)
+        private void DisposeProxyInstancesRecursive()
         {
-            if (component == null)
-            {
-                return;
-            }
+            var disposalList = new List<ComponentDefinition>();
+            CollectDependenciesRecursive(_componentDefinitions, ref disposalList);
 
-            var dependencyFields = component.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
-                .Where(f => f.Name.StartsWith("__proxy_"));
-            foreach (var dependencyField in dependencyFields)
+            disposalList.Reverse();
+            foreach (var disposable in disposalList.OfType<IDisposable>())
             {
-                var dependency = dependencyField.GetValue(component);
-                DisposeProxyInstancesRecursive(dependency);
+                disposable.Dispose();
             }
+        }
 
-            var disposable = component as IDisposable;
-            disposable?.Dispose();
+        private void CollectDependenciesRecursive(IReadOnlyList<ComponentDefinition> components, ref List<ComponentDefinition> disposalList)
+        {
+            foreach (var component in components)
+            {
+                var dependencies = component.Dependencies.Select(d => d.ComponentDefinition).ToList();
+                CollectDependenciesRecursive(dependencies, ref disposalList);
+
+                if (!disposalList.Contains(component))
+                {
+                    disposalList.Add(component);
+                }
+            }
         }
     }
 }
