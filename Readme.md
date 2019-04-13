@@ -26,7 +26,7 @@ A _signal_ is a method on a _component_. A _trigger_ is a method with a compatib
 
 During initialization of a _sender_, a proxy is created which implements all abstract _signal_ methods and optionally overrides all virtual _signal_ methods. If a _connection_ is configured, a reference to the _receiver_ is stored in a hidden field in the _sender_. The generated implementation of the _signal_ method calls the _trigger_ method on the _receiver_ reference. Overhead is therefore minimized to an additional method call.
 
-In case of an event, multiple _receiver_ references are stored and each configured _trigger_ on each _receiver_ is executed. Note that the order of execution is _undefined_!
+If multiple _triggers_ are connected to  a single _signal_, each _trigger_ on each _receiver_ is executed one after the other. Note that the order of execution is _undefined_!
 
 Since _senders_ require references to _receivers_ (as is the case with a similarly setup method call), connections define a dependency graph. This _does_ mean that connections _must not_ create circular references. The dependency graph _must always_ be a tree. The order of components in the configuration file does _not_ matter. The initialization sequence initializes all components with respect to their dependencies.
 
@@ -102,6 +102,8 @@ public abstract class CloneReceiver
 - The signature _must_ be identical, this includes generic parameters and constraints.
 - Generic type parameters on _components_ are _not_ supported.
 
+Components may implement _IDisposable_ to perform cleanup before application shutdown. During shutdown, all components which implement _IDisposable_ get disposed with respect to their dependency tree. This means that dependent components will be disposed before their dependencies.
+
 ## Configuration
 
 The configuration is a simple JSON file. It defines which component instances need to be created and how they are connected.
@@ -152,3 +154,17 @@ class Program
     }
 }
 ```
+
+## Special components
+
+### Metamorphosis.Lifecycle
+
+The lifecycle component provides signals regarding application startup and shutdown.
+
+#### void Startup()
+The startup signal is raised after the initialization is complete and before the main thread goes into sleep mode to wait for application shutdown. Components may now do their own initializations and/or start actions which need to run for the whole length of the application lifetime (timers, listeners, ...).
+
+A components startup method _must_ be non-blocking. Any long running actions require creation of a separate thread.
+
+#### void Shutdown()
+The shutdown signal is raised just before the components get disposed. A component may now stop long running actions and perform cleanup. Do note that the order in which components receive the shutdown trigger is _undefined_.
