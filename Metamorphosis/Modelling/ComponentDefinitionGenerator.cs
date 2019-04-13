@@ -29,7 +29,7 @@ namespace Metamorphosis.Modelling
             var name = componentModel.Name;
             var baseType = _loadedTypes[componentModel.Type];
 
-            var signals = baseType.GetMethods()
+            var signals = baseType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
                 .Where(m => m.GetCustomAttribute<SignalAttribute>() != null)
                 .Select(m => new SignalDefinition
                 {

@@ -7,21 +7,27 @@ namespace Metamorphosis.Playground
     public abstract class TestComponent
     {
         [Signal]
-        public abstract void Log(object item, LogLevel logLevel = LogLevel.Info);
+        protected abstract void Log(object item, LogLevel logLevel = LogLevel.Info);
 
         [Signal]
-        public virtual int Add(int a, int b)
+        protected virtual int Add(int a, int b)
         {
             return a - b;
         }
 
-        [Startup]
+        [Trigger]
         public void Startup()
         {
             Log("I'm Running!!!");
 
             var result = Add(17, 13);
             Log(result);
+        }
+
+        [Trigger]
+        public void Shutdown()
+        {
+            Log("I'm not running anymore...");
         }
     }
 }

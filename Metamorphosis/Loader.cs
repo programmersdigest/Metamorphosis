@@ -1,5 +1,4 @@
-﻿using Metamorphosis.Attributes;
-using Metamorphosis.Modelling;
+﻿using Metamorphosis.Modelling;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -64,16 +63,20 @@ namespace Metamorphosis
 
         public void Run()
         {
-            foreach (var component in _components.Values)
-            {
-                var startupMethod = component.GetType().GetMethods()
-                    .SingleOrDefault(m => m.GetCustomAttribute<StartupAttribute>() != null);
-                startupMethod?.Invoke(component, null);
-            }
+            var lifetimeService = _components.Values.OfType<Lifecycle>().FirstOrDefault();
+            lifetimeService?.SignalStartup();
 
             Console.WriteLine("Press \"q\" to quit.");
             while (Console.ReadKey(true).KeyChar != 'q')
             {
+            }
+
+            Console.WriteLine("Shutting down.");
+
+            lifetimeService?.SignalShutdown();
+            foreach (var component in _components.Values)
+            {
+                DisposeProxyInstancesRecursive(component);
             }
         }
 
@@ -95,6 +98,25 @@ namespace Metamorphosis
             }
 
             componentDefinition.Instance = instance;
+        }
+
+        private void DisposeProxyInstancesRecursive(object component)
+        {
+            if (component == null)
+            {
+                return;
+            }
+
+            var dependencyFields = component.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
+                .Where(f => f.Name.StartsWith("__proxy_"));
+            foreach (var dependencyField in dependencyFields)
+            {
+                var dependency = dependencyField.GetValue(component);
+                DisposeProxyInstancesRecursive(dependency);
+            }
+
+            var disposable = component as IDisposable;
+            disposable?.Dispose();
         }
     }
 }

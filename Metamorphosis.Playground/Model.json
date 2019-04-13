@@ -1,6 +1,10 @@
 {
   "Components": [
     {
+      "Name": "Lifecycle",
+      "Type": "Metamorphosis.Lifecycle"
+    },
+    {
       "Name": "ConsoleLogger1",
       "Type": "Metamorphosis.Logging.ConsoleLogger"
     },
@@ -18,6 +22,18 @@
     }
   ],
   "Connections": [
+    {
+      "Signal": "Lifecycle.Startup",
+      "Trigger": "TestComponent.Startup"
+    },
+    {
+      "Signal": "Lifecycle.Shutdown",
+      "Trigger": "TestComponent.Shutdown"
+    },
+    {
+      "Signal": "Lifecycle.Startup",
+      "Trigger":  "SumComponent.Shutdown"
+    },
     {
       "Signal": "TestComponent.Log",
       "Trigger": "ConsoleLogger1.Log"

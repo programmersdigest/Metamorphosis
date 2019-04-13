@@ -1,4 +1,5 @@
 ﻿using Metamorphosis.Attributes;
+using System;
 
 namespace Metamorphosis.Playground
 {
@@ -9,6 +10,12 @@ namespace Metamorphosis.Playground
         public int Add(int a, int b)
         {
             return a + b;
+        }
+
+        [Trigger]
+        public void Startup()
+        {
+            Console.WriteLine("To sum it up...");
         }
     }
 }

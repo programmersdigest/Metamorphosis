@@ -141,10 +141,15 @@ namespace Metamorphosis.Modelling
             {
                 var receiver = dependencies[connection.Receiver];
                 var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
-                    .Single(m => m.Name == connection.SignalName &&
+                    .SingleOrDefault(m => m.Name == connection.SignalName &&
                                  m.GetCustomAttribute<TriggerAttribute>() != null &&
                                  m.IsMethodDefinitionCompatible(signal.SignalMethod)
                     );
+
+                if (triggerMethod == null)
+                {
+                    throw new InvalidOperationException($"The trigger {connection.Receiver}.{connection.TriggerName} cannot be found. Does the component implement this trigger?");
+                }
 
                 ilGenerator.Emit(OpCodes.Ldarg_0);                                  // Load "this".
                 ilGenerator.Emit(OpCodes.Ldfld, receiver.FieldBuilder);             // Load receiver from field.
