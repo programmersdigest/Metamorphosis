@@ -26,7 +26,11 @@ namespace programmersdigest.Metamorphosis.Modelling
         private ComponentDefinition GenerateComponentDefinition(ComponentModel componentModel, IReadOnlyList<ConnectionModel> connections)
         {
             var name = componentModel.Name;
-            var baseType = _loadedTypes[componentModel.Type];
+
+            if (!_loadedTypes.TryGetValue(componentModel.Type, out var baseType))
+            {
+                throw new InvalidOperationException($"The type {componentModel.Type} requested for component {componentModel.Name} could not be found. Are you missing an assembly entry?");
+            }
 
             var signals = baseType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
                 .Where(m => m.GetCustomAttribute<SignalAttribute>() != null)
