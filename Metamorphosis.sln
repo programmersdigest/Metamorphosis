@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metamorphosis", "Metamorphosis\Metamorphosis.csproj", "{EA37FC44-3E35-479E-9256-A7988944284A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "programmersdigest.Metamorphosis", "programmersdigest.Metamorphosis\programmersdigest.Metamorphosis.csproj", "{EA37FC44-3E35-479E-9256-A7988944284A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metamorphosis.Playground", "Metamorphosis.Playground\Metamorphosis.Playground.csproj", "{7FA7AFE0-8ECB-4624-8778-CBFD2DA3F833}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "programmersdigest.Metamorphosis.Playground", "programmersdigest.Metamorphosis.Playground\programmersdigest.Metamorphosis.Playground.csproj", "{7FA7AFE0-8ECB-4624-8778-CBFD2DA3F833}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Metamorphosis.Tests", "Metamorphosis.Tests\Metamorphosis.Tests.csproj", "{6654830F-013C-4FC0-A1A5-71213DC18497}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "programmersdigest.Metamorphosis.Tests", "programmersdigest.Metamorphosis.Tests\programmersdigest.Metamorphosis.Tests.csproj", "{6654830F-013C-4FC0-A1A5-71213DC18497}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Metamorphosis.Logging", "Metamorphosis.Logging\Metamorphosis.Logging.csproj", "{ADA96FBE-D4D7-4522-A77B-5EEA6E975390}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "programmersdigest.Metamorphosis.Logging", "programmersdigest.Metamorphosis.Logging\programmersdigest.Metamorphosis.Logging.csproj", "{ADA96FBE-D4D7-4522-A77B-5EEA6E975390}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

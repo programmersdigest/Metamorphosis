@@ -1,0 +1,53 @@
+{
+  "Components": [
+    {
+      "Name": "Lifecycle",
+      "Type": "programmersdigest.Metamorphosis.Lifecycle"
+    },
+    {
+      "Name": "ConsoleLogger1",
+      "Type": "programmersdigest.Metamorphosis.Logging.ConsoleLogger"
+    },
+    {
+      "Name": "ConsoleLogger2",
+      "Type": "programmersdigest.Metamorphosis.Logging.ConsoleLogger"
+    },
+    {
+      "Name": "TestComponent",
+      "Type": "programmersdigest.Metamorphosis.Playground.TestComponent"
+    },
+    {
+      "Name": "SumComponent",
+      "Type": "programmersdigest.Metamorphosis.Playground.SumComponent"
+    }
+  ],
+  "Connections": [
+    {
+      "Signal": "Lifecycle.Startup",
+      "Trigger": "TestComponent.Startup"
+    },
+    {
+      "Signal": "Lifecycle.Shutdown",
+      "Trigger": "TestComponent.Shutdown"
+    },
+    {
+      "Signal": "Lifecycle.Startup",
+      "Trigger":  "SumComponent.Shutdown"
+    },
+    {
+      "Signal": "TestComponent.Log",
+      "Trigger": "ConsoleLogger1.Log"
+    },
+    {
+      "Signal": "TestComponent.Log",
+      "Trigger": "ConsoleLogger2.Log"
+    },
+    {
+      "Signal": "TestComponent.Add",
+      "Trigger": "SumComponent.Add"
+    }
+  ],
+  "Assemblies": [
+    "programmersdigest.Metamorphosis.Logging"
+  ]
+}

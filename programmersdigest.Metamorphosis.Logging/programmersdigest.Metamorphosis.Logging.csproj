@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Version>0.1.0</Version>
+    <Authors>Michael Sperber (programmersidgest.de)</Authors>
+    <Company>programmersdigest.de</Company>
+    <Description>Logging classes for programmersdigest.Metamorphosis.</Description>
+    <Copyright>Copyright © Michael Sperber (programmersdigest.de) 2019</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Configuration JSON Application Framework Modelling Flexible Logging</PackageTags>
+    <PackageId>programmersdigest.Metamorphosis.Logging</PackageId>
+    <Product>programmersdigest.Metamorphosis</Product>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\programmersdigest.Metamorphosis\programmersdigest.Metamorphosis.csproj" />
+  </ItemGroup>
+
+</Project>
