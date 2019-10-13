@@ -98,7 +98,7 @@ namespace programmersdigest.Metamorphosis
         private void DisposeProxyInstancesRecursive()
         {
             var disposalList = new List<ComponentDefinition>();
-            CollectDependenciesRecursive(_componentDefinitions, ref disposalList);
+            CollectDependenciesRecursive(_componentDefinitions, disposalList);
 
             disposalList.Reverse();
             foreach (var disposable in disposalList.OfType<IDisposable>())
@@ -107,12 +107,12 @@ namespace programmersdigest.Metamorphosis
             }
         }
 
-        private void CollectDependenciesRecursive(IReadOnlyList<ComponentDefinition> components, ref List<ComponentDefinition> disposalList)
+        private void CollectDependenciesRecursive(IReadOnlyList<ComponentDefinition> components, List<ComponentDefinition> disposalList)
         {
             foreach (var component in components)
             {
                 var dependencies = component.Dependencies.Select(d => d.ComponentDefinition).ToList();
-                CollectDependenciesRecursive(dependencies, ref disposalList);
+                CollectDependenciesRecursive(dependencies, disposalList);
 
                 if (!disposalList.Contains(component))
                 {
