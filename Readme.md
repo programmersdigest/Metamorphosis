@@ -33,7 +33,7 @@ Since _senders_ require references to _receivers_ (as is the case with a similar
 ## Implementing components
 
 A _sender_ with a mandatory _signal_ looks like follows:
-```
+```C#
 [Component]
 public abstract class MathSender
 {
@@ -48,7 +48,7 @@ public abstract class MathSender
 - A _mandatory signal_ must be a _protected abstract method_.
 
 The same _component_ using an optional _signal_ looks like follows:
-```
+```C#
 [Component]
 public abstract class MathSender
 {
@@ -63,7 +63,7 @@ public abstract class MathSender
 - An _optional signal_ must be a _protected virtual method_.
 
 A matching _receiver_ looks like follows:
-```
+```C#
 [Component]
 public abstract class MathReceiver
 {
@@ -80,7 +80,7 @@ public abstract class MathReceiver
 - A _trigger_ must not be _abstract_.
 
 It is possible to use generic methods (including constraints) for _signals_ and _triggers_:
-```
+```C#
 [Component]
 public abstract class CloneSender
 {
@@ -109,7 +109,7 @@ Components may implement _IDisposable_ to perform cleanup before application shu
 The configuration is a simple JSON file. It defines which component instances need to be created and how they are connected.
 
 A typical configuration might look as follows:
-```
+```JSON
 {
   "Components": [
     {
@@ -144,7 +144,7 @@ A typical configuration might look as follows:
 
 All "magic" is encapsulated in the class _App_.
 
-```
+```C#
 class Program
 {
     static void Main(string[] args)

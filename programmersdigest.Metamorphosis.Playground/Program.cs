@@ -2,7 +2,7 @@
 {
     public sealed class Program
     {
-        public static void Main(string[] args)
+        public static void Main()
         {
             var app = new App();
             app.Start("Model.json");
