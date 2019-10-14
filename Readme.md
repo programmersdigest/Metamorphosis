@@ -1,5 +1,10 @@
 # Metamorphosis
 
+## Contributors
+
+- Awesome-Source
+- programmersdigest
+
 ## Overview
 
 Metamorphosis is a configuration based application framework. The building blocks of the configuration are _components_. Components define _signals_ (senders) and _triggers_ (receivers). Compatible (by signature) _signals_ and _triggers_ can be connected via configuration to build a complex tree of interacting _components_ - a complete application.
