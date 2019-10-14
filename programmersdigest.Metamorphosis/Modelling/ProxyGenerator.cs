@@ -1,4 +1,5 @@
 ﻿using programmersdigest.Metamorphosis.Attributes;
+using programmersdigest.Metamorphosis.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace programmersdigest.Metamorphosis.Modelling
         {
             if (recursionDepth > _componentDefinitions.Count)
             {
-                throw new InvalidOperationException($"The recursion depth is greater than the number of components. Is there a loop in the endpoint configuration?");
+                throw new ComponentDefinitionLoopException($"The recursion depth is greater than the number of components. Is there a loop in the endpoint configuration?");
             }
 
             if (componentDefinition.ProxyType != null)
@@ -69,7 +70,7 @@ namespace programmersdigest.Metamorphosis.Modelling
                 {
                     if (signal.SignalMethod.IsAbstract)
                     {
-                        throw new InvalidOperationException($"{componentDefinition.Name}.{signal.SignalMethod.Name} is mandatory. Please define a connection.");
+                        throw new MissingConnectionException($"{componentDefinition.Name}.{signal.SignalMethod.Name} is mandatory. Please define a connection.");
                     }
                 }
                 else
@@ -148,7 +149,8 @@ namespace programmersdigest.Metamorphosis.Modelling
 
                 if (triggerMethod == null)
                 {
-                    throw new InvalidOperationException($"The trigger {connection.Receiver}.{connection.TriggerName} cannot be found. Does the component implement this trigger?");
+                    var triggerName = $"{connection.Receiver}.{connection.TriggerName}";
+                    throw new MissingTriggerException($"The trigger {triggerName} cannot be found. Does the component implement this trigger? Is the trigger method public?");
                 }
 
                 ilGenerator.Emit(OpCodes.Ldarg_0);                                  // Load "this".
