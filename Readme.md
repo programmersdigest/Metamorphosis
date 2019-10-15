@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/wq4mwx61brabuei8/branch/master?svg=true)](https://ci.appveyor.com/project/programmersdigest/metamorphosis/branch/master)
+
 # Metamorphosis
 
 ## Contributors
