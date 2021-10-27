@@ -1,26 +1,27 @@
-﻿using programmersdigest.Metamorphosis.Attributes;
+﻿using System.Threading.Tasks;
+using programmersdigest.Metamorphosis.Attributes;
 using programmersdigest.Metamorphosis.Logging;
 
 namespace programmersdigest.Metamorphosis.Playground
 {
     [Component]
-    public abstract class TestComponent
+    public abstract class AsyncTestComponent
     {
         [Signal]
         protected abstract void Log(object item, LogLevel logLevel = LogLevel.Info);
 
         [Signal]
-        protected virtual int Add(int a, int b)
+        protected virtual async Task<int> Add(int a, int b)
         {
-            return a - b;
+            return await Task.Run(() => a - b);
         }
 
         [Trigger]
-        public void Startup()
+        public async void Startup()
         {
-            Log("I'm running!");
+            Log("I'm running async!");
 
-            var result = Add(17, 13);
+            var result = await Add(29, 13).ConfigureAwait(false);
             Log(result);
         }
 

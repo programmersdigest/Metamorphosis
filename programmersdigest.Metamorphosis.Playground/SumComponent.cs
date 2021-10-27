@@ -9,13 +9,8 @@ namespace programmersdigest.Metamorphosis.Playground
         [Trigger]
         public int Add(int a, int b)
         {
+            Console.WriteLine("Computing sum...");
             return a + b;
-        }
-
-        [Trigger]
-        public void Startup()
-        {
-            Console.WriteLine("To sum it up...");
         }
     }
 }
