@@ -8,7 +8,7 @@ namespace programmersdigest.Metamorphosis
     [Component]
     public sealed class Config
     {
-        private readonly Dictionary<string, JToken> _values = new Dictionary<string, JToken>();
+        private readonly Dictionary<string, JToken> _values = new();
 
         public Config(Dictionary<string, JToken> values)
         {
@@ -16,7 +16,7 @@ namespace programmersdigest.Metamorphosis
         }
 
         [Trigger]
-        public object Get(string key, Type type, object defaultValue)
+        public object? Get(string key, Type type, object? defaultValue)
         {
             if (!_values.TryGetValue(key, out var value))
             {

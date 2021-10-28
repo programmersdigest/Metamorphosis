@@ -25,18 +25,18 @@ namespace programmersdigest.Metamorphosis.Logging
             }
         }
 
-        private void LogMessage(string message, LogLevel logLevel)
+        private static void LogMessage(string message, LogLevel logLevel)
         {
             Console.Error.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {logLevel}: {message}");
         }
 
-        private void LogObject(object obj, LogLevel logLevel)
+        private static void LogObject(object obj, LogLevel logLevel)
         {
             var message = JsonConvert.SerializeObject(obj);
             LogMessage(message, logLevel);
         }
 
-        private void LogException(Exception ex, LogLevel logLevel)
+        private static void LogException(Exception ex, LogLevel logLevel)
         {
             var messageBuilder = new StringBuilder();
 
@@ -61,7 +61,7 @@ namespace programmersdigest.Metamorphosis.Logging
                     }
                 }
 
-                ex = ex.InnerException;
+                ex = ex.InnerException!;
                 indentCount += 4;
             } while (ex != null);
 

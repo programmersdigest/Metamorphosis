@@ -5,16 +5,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using programmersdigest.Metamorphosis.Exceptions;
 
 namespace programmersdigest.Metamorphosis
 {
     internal sealed class Loader
     {
         private readonly string _modelFilename;
-        private readonly Func<ConstructorInfo[], object[]> _resolveConstructorParametersCallback;
-        private IReadOnlyList<ComponentDefinition> _componentDefinitions;
+        private readonly Func<ConstructorInfo[], object?[]?>? _resolveConstructorParametersCallback;
+        private IReadOnlyList<ComponentDefinition> _componentDefinitions = null!;
 
-        public Loader(string modelFilename, Func<ConstructorInfo[], object[]> resolveConstructorParametersCallback = null)
+        public Loader(string modelFilename, Func<ConstructorInfo[], object?[]?>? resolveConstructorParametersCallback = null)
         {
             _modelFilename = modelFilename;
             _resolveConstructorParametersCallback = resolveConstructorParametersCallback;
@@ -29,7 +30,7 @@ namespace programmersdigest.Metamorphosis
             using (var jsonReader = new JsonTextReader(textReader))
             {
                 var serializer = new JsonSerializer();
-                model = serializer.Deserialize<Model>(jsonReader);
+                model = serializer.Deserialize<Model>(jsonReader) ?? throw new InvalidModelException($"The model file \"{_modelFilename}\" cannot be parsed.");
             }
 
             foreach (var assemblyFilename in model.Assemblies)
@@ -85,13 +86,16 @@ namespace programmersdigest.Metamorphosis
             }
 
             var constructorParameters = _resolveConstructorParametersCallback?.Invoke(componentDefinition.ProxyType.GetConstructors()) ?? Array.Empty<object>();
-            var instance = Activator.CreateInstance(componentDefinition.ProxyType, constructorParameters);
+            var instance = Activator.CreateInstance(componentDefinition.ProxyType, constructorParameters)
+                        ?? throw new ComponentInstantiationException($"Unable to create an instance of type {componentDefinition.ProxyType.Name} for component {componentDefinition.Name}.");
 
             foreach (var dependency in componentDefinition.Dependencies)
             {
                 CreateProxyInstancesRecursive(dependency.ComponentDefinition);
 
-                var field = instance.GetType().GetField($"__proxy_{dependency.Name}", BindingFlags.Instance | BindingFlags.NonPublic);
+                var fieldName = $"__proxy_{dependency.Name}";
+                var field = instance.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)
+                         ?? throw new MissingProxyFieldException($"Proxy field {fieldName} of component {componentDefinition.Name} does not exist. Something went wrong during proxy generation.");
                 field.SetValue(instance, dependency.ComponentDefinition.Instance);
             }
 

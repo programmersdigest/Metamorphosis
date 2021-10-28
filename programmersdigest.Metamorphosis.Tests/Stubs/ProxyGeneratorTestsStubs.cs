@@ -20,13 +20,11 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
 
         internal static ComponentDefinition GetComponentDefinition()
         {
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsSimpleTriggerStub),
-                Signals = new List<SignalDefinition>(),
-                Dependencies = new List<DependencyDefinition>()
-            };
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsSimpleTriggerStub),
+                new List<SignalDefinition>(),
+                new List<DependencyDefinition>());
         }
     }
 
@@ -42,35 +40,24 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
         {
             var connections = new List<ConnectionModel>
             {
-                new ConnectionModel
-                {
-                    Signal = $"{ComponentName}.Add",
-                    Trigger = $"{ProxyGeneratorTestsSimpleTriggerStub.ComponentName}.Add"
-                }
+                new ConnectionModel($"{ComponentName}.Add", $"{ProxyGeneratorTestsSimpleTriggerStub.ComponentName}.Add")
             };
 
             var signals = new List<SignalDefinition>
             {
-                new SignalDefinition
-                {
-                    SignalMethod = typeof(ProxyGeneratorTestsSimpleSignalStub).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance),
-                    Connections = connections
-                }
+                new SignalDefinition(
+                    typeof(ProxyGeneratorTestsSimpleSignalStub).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)!,
+                    connections)
             };
 
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsSimpleSignalStub),
-                Signals = signals,
-                Dependencies = new List<DependencyDefinition>
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsSimpleSignalStub),
+                signals,
+                new List<DependencyDefinition>
                 {
-                    new DependencyDefinition
-                    {
-                        Name = ProxyGeneratorTestsSimpleTriggerStub.ComponentName
-                    }
-                }
-            };
+                    new DependencyDefinition(ProxyGeneratorTestsSimpleTriggerStub.ComponentName)
+                });
         }
     }
 
@@ -96,35 +83,24 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
         {
             var connections = new List<ConnectionModel>
             {
-                new ConnectionModel
-                {
-                    Signal = $"{ComponentName}.Subtract",
-                    Trigger = $"{ProxyGeneratorTestsLoopStubA.ComponentName}.Subtract"
-                }
+                new ConnectionModel($"{ComponentName}.Subtract", $"{ProxyGeneratorTestsLoopStubA.ComponentName}.Subtract")
             };
 
             var signals = new List<SignalDefinition>
             {
-                new SignalDefinition
-                {
-                    SignalMethod = typeof(ProxyGeneratorTestsLoopStubB).GetMethod("Subtract", BindingFlags.NonPublic | BindingFlags.Instance),
-                    Connections = connections
-                }
+                new SignalDefinition(
+                    typeof(ProxyGeneratorTestsLoopStubB).GetMethod("Subtract", BindingFlags.NonPublic | BindingFlags.Instance)!,
+                    connections)
             };
 
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsLoopStubB),
-                Signals = signals,
-                Dependencies = new List<DependencyDefinition>
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsLoopStubB),
+                signals,
+                new List<DependencyDefinition>
                 {
-                    new DependencyDefinition
-                    {
-                        Name = ProxyGeneratorTestsLoopStubB.ComponentName
-                    }
-                }
-            };
+                    new DependencyDefinition(ProxyGeneratorTestsLoopStubB.ComponentName)
+                });
         }
     }
 
@@ -146,35 +122,24 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
         {
             var connections = new List<ConnectionModel>
             {
-                new ConnectionModel
-                {
-                    Signal = $"{ComponentName}.Add",
-                    Trigger = $"{ProxyGeneratorTestsLoopStubA.ComponentName}.Add"
-                }
+                new ConnectionModel($"{ComponentName}.Add", $"{ProxyGeneratorTestsLoopStubA.ComponentName}.Add")
             };
 
             var signals = new List<SignalDefinition>
             {
-                new SignalDefinition
-                {
-                    SignalMethod = typeof(ProxyGeneratorTestsLoopStubB).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance),
-                    Connections = connections
-                }
+                new SignalDefinition(
+                    typeof(ProxyGeneratorTestsLoopStubB).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)!,
+                    connections)
             };
 
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsLoopStubB),
-                Signals = signals,
-                Dependencies = new List<DependencyDefinition>
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsLoopStubB),
+                signals,
+                new List<DependencyDefinition>
                 {
-                    new DependencyDefinition
-                    {
-                        Name = ProxyGeneratorTestsLoopStubA.ComponentName
-                    }
-                }
-            };
+                    new DependencyDefinition(ProxyGeneratorTestsLoopStubA.ComponentName)
+                });
         }
     }
 
@@ -195,13 +160,11 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
 
         internal static ComponentDefinition GetComponentDefinition()
         {
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsMissingTriggerStubA),
-                Signals = new List<SignalDefinition>(),
-                Dependencies = new List<DependencyDefinition>()
-            };
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsMissingTriggerStubA),
+                new List<SignalDefinition>(),
+                new List<DependencyDefinition>());
         }
     }
 
@@ -217,35 +180,24 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
         {
             var connections = new List<ConnectionModel>
             {
-                new ConnectionModel
-                {
-                    Signal = $"{ComponentName}.Add",
-                    Trigger = $"{ProxyGeneratorTestsMissingTriggerStubA.ComponentName}.Add"
-                }
+                new ConnectionModel($"{ComponentName}.Add", $"{ProxyGeneratorTestsMissingTriggerStubA.ComponentName}.Add")
             };
 
             var signals = new List<SignalDefinition>
             {
-                new SignalDefinition
-                {
-                    SignalMethod = typeof(ProxyGeneratorTestsMissingTriggerStubB).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance),
-                    Connections = connections
-                }
+                new SignalDefinition(
+                    typeof(ProxyGeneratorTestsMissingTriggerStubB).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)!,
+                    connections)
             };
 
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsMissingTriggerStubB),
-                Signals = signals,
-                Dependencies = new List<DependencyDefinition>
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsMissingTriggerStubB),
+                signals,
+                new List<DependencyDefinition>
                 {
-                    new DependencyDefinition
-                    {
-                        Name = ProxyGeneratorTestsMissingTriggerStubA.ComponentName
-                    }
-                }
-            };
+                    new DependencyDefinition(ProxyGeneratorTestsMissingTriggerStubA.ComponentName)
+                });
         }
     }
 
@@ -266,13 +218,11 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
 
         internal static ComponentDefinition GetComponentDefinition()
         {
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsMissingConnectionStubA),
-                Signals = new List<SignalDefinition>(),
-                Dependencies = new List<DependencyDefinition>()
-            };
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsMissingConnectionStubA),
+                new List<SignalDefinition>(),
+                new List<DependencyDefinition>());
         }
     }
 
@@ -288,26 +238,19 @@ namespace programmersdigest.Metamorphosis.Tests.Stubs
         {
             var signals = new List<SignalDefinition>
             {
-                new SignalDefinition
-                {
-                    SignalMethod = typeof(ProxyGeneratorTestsMissingConnectionStubB).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance),
-                    Connections = new List<ConnectionModel>()
-                }
+                new SignalDefinition(
+                    typeof(ProxyGeneratorTestsMissingConnectionStubB).GetMethod("Add", BindingFlags.NonPublic | BindingFlags.Instance)!,
+                    new List<ConnectionModel>())
             };
 
-            return new ComponentDefinition
-            {
-                Name = ComponentName,
-                BaseType = typeof(ProxyGeneratorTestsMissingConnectionStubB),
-                Signals = signals,
-                Dependencies = new List<DependencyDefinition>
+            return new ComponentDefinition(
+                ComponentName,
+                typeof(ProxyGeneratorTestsMissingConnectionStubB),
+                signals,
+                new List<DependencyDefinition>
                 {
-                    new DependencyDefinition
-                    {
-                        Name = ProxyGeneratorTestsMissingConnectionStubA.ComponentName
-                    }
-                }
-            };
+                    new DependencyDefinition(ProxyGeneratorTestsMissingConnectionStubA.ComponentName)
+                });
         }
     }
 

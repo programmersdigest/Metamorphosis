@@ -15,7 +15,7 @@ namespace programmersdigest.Metamorphosis.Modelling
             _loadedTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic)
                 .SelectMany(a => a.GetTypes().Where(t => t.GetCustomAttribute<ComponentAttribute>() != null))
-                .ToDictionary(t => t.FullName);
+                .ToDictionary(t => t.FullName!);
         }
 
         public IReadOnlyList<ComponentDefinition> GenerateComponentDefinitions(Model model)
@@ -34,29 +34,15 @@ namespace programmersdigest.Metamorphosis.Modelling
 
             var signals = baseType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
                 .Where(m => m.GetCustomAttribute<SignalAttribute>() != null)
-                .Select(m => new SignalDefinition
-                {
-                    SignalMethod = m,
-                    Connections = connections.Where(c => c.Sender == componentModel.Name && c.SignalName == m.Name)
-                                             .ToList()
-                })
-                .ToList();
+                .Select(m => new SignalDefinition(m, connections.Where(c => c.Sender == componentModel.Name && c.SignalName == m.Name).ToArray()))
+                .ToArray();
 
             var dependencies = signals.SelectMany(r => r.Connections)
                 .GroupBy(c => c.Receiver)
-                .Select(g => new DependencyDefinition
-                {
-                    Name = g.Key
-                })
-                .ToList();
+                .Select(g => new DependencyDefinition(g.Key))
+                .ToArray();
 
-            return new ComponentDefinition
-            {
-                Name = name,
-                BaseType = baseType,
-                Signals = signals,
-                Dependencies = dependencies
-            };
+            return new ComponentDefinition(name, baseType, signals, dependencies);
         }
     }
 }

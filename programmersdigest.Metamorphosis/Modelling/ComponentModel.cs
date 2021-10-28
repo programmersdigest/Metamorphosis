@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
-
-namespace programmersdigest.Metamorphosis.Modelling
+﻿namespace programmersdigest.Metamorphosis.Modelling
 {
     internal sealed class ComponentModel
     {
-        public string Name { get; set; }
-        public string Type { get; set; }
+        public string Name { get; }
+        public string Type { get; }
+
+        public ComponentModel(string name, string type)
+        {
+            Name = name;
+            Type = type;
+        }
     }
 }

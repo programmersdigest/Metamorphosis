@@ -1,6 +1,7 @@
 ﻿using programmersdigest.Metamorphosis.Attributes;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace programmersdigest.Metamorphosis.Logging
@@ -14,7 +15,7 @@ namespace programmersdigest.Metamorphosis.Logging
         [Signal]
         protected abstract T GetConfigValue<T>(string key, T defaultValue);
 
-        private StreamWriter _writer;
+        private StreamWriter? _writer;
 
         public void Init()
         {
@@ -27,12 +28,13 @@ namespace programmersdigest.Metamorphosis.Logging
         public void Dispose()
         {
             _writer?.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         [Trigger]
         public void Log(string message, LogLevel logLevel = LogLevel.Info)
         {
-            _writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {logLevel}: {message}");
+            _writer?.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {logLevel}: {message}");
         }
 
         [Trigger]
@@ -51,14 +53,14 @@ namespace programmersdigest.Metamorphosis.Logging
                               .Append(ex.Message)
                               .AppendLine();
 
-                var stackTrace = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                var stackTrace = ex.StackTrace?.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries) ?? Enumerable.Empty<string>();
                 foreach (var line in stackTrace)
                 {
                     messageBuilder.Append(indent)
                                   .AppendLine(line);
                 }
 
-                ex = ex.InnerException;
+                ex = ex.InnerException!;
                 indentCount += 4;
             } while (ex != null);
 

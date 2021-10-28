@@ -3,13 +3,21 @@ using System.Collections.Generic;
 
 namespace programmersdigest.Metamorphosis.Modelling
 {
-    internal class ComponentDefinition
+    internal sealed class ComponentDefinition
     {
-        public string Name { get; set; }
-        public Type BaseType { get; set; }
-        public Type ProxyType { get; set; }
-        public List<DependencyDefinition> Dependencies { get; set; }
-        public List<SignalDefinition> Signals { get; set; }
-        public object Instance { get; internal set; }
+        internal string Name { get; }
+        internal Type BaseType { get; }
+        internal IReadOnlyCollection<SignalDefinition> Signals { get; }
+        internal IReadOnlyCollection<DependencyDefinition> Dependencies { get; }
+        internal Type ProxyType { get; set; } = null!;
+        internal object? Instance { get; set; } = null;
+
+        internal ComponentDefinition(string name, Type baseType, IReadOnlyCollection<SignalDefinition> signals, IReadOnlyCollection<DependencyDefinition> dependencies)
+        {
+            Name = name;
+            BaseType = baseType;
+            Signals = signals;
+            Dependencies = dependencies;
+        }
     }
 }

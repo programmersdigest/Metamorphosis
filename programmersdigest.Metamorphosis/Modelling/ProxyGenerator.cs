@@ -10,11 +10,10 @@ namespace programmersdigest.Metamorphosis.Modelling
 {
     internal sealed class ProxyGenerator
     {
-
         private readonly AssemblyBuilder _assemblyBuilder;
         private readonly ModuleBuilder _moduleBuilder;
 
-        private Dictionary<string, ComponentDefinition> _componentDefinitions;
+        private Dictionary<string, ComponentDefinition> _componentDefinitions = null!;
 
         public ProxyGenerator()
         {
@@ -71,7 +70,7 @@ namespace programmersdigest.Metamorphosis.Modelling
 
             foreach (var signal in componentDefinition.Signals)
             {
-                if (signal.Connections.Count() <= 0)
+                if (signal.Connections.Count <= 0)
                 {
                     if (signal.SignalMethod.IsAbstract)
                     {
@@ -80,7 +79,7 @@ namespace programmersdigest.Metamorphosis.Modelling
                 }
                 else
                 {
-                    if (signal.Connections.Count() > 1 && signal.SignalMethod.ReturnType != typeof(void))
+                    if (signal.Connections.Count > 1 && signal.SignalMethod.ReturnType != typeof(void))
                     {
                         throw new InvalidOperationException($"{componentDefinition.Name}.{signal.SignalMethod.Name} cannot be used with multiple connections because it expects a single return value.");
                     }
@@ -91,10 +90,10 @@ namespace programmersdigest.Metamorphosis.Modelling
                 }
             }
 
-            componentDefinition.ProxyType = proxyTypeBuilder.CreateTypeInfo();
+            componentDefinition.ProxyType = proxyTypeBuilder.CreateTypeInfo()!;
         }
 
-        private static Dictionary<string, DependencyDefinition> GenerateDependencyFields(TypeBuilder typeBuilder, List<DependencyDefinition> dependencies)
+        private static Dictionary<string, DependencyDefinition> GenerateDependencyFields(TypeBuilder typeBuilder, IReadOnlyCollection<DependencyDefinition> dependencies)
         {
             var dependenciesDictionary = new Dictionary<string, DependencyDefinition>();
 
@@ -167,7 +166,7 @@ namespace programmersdigest.Metamorphosis.Modelling
             foreach (var connection in signal.Connections)
             {
                 var receiver = dependencies[connection.Receiver];
-                var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods()
+                var triggerMethod = receiver.ComponentDefinition.ProxyType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
                     .SingleOrDefault(m => m.Name == connection.SignalName &&
                                  m.GetCustomAttribute<TriggerAttribute>() != null &&
                                  m.IsMethodDefinitionCompatible(signal.SignalMethod)

@@ -7,13 +7,15 @@ namespace programmersdigest.Metamorphosis.Playground
     {
         public static void Main()
         {
-            var app = new App();
-            app.Start("Model.json", ctors => ctors.First()
-                                                  .GetParameters()
-                                                  .Select(p => p.ParameterType == typeof(string)
-                                                             ? "Injected Dependency :)"
-                                                             : throw new InvalidOperationException())
-                                                  .ToArray());
+            var app = new App(
+                "Model.json",
+                ctors => ctors.First()
+                              .GetParameters()
+                              .Select(p => p.ParameterType == typeof(string)
+                                         ? "Injected Dependency :)"
+                                         : throw new InvalidOperationException())
+                              .ToArray());
+            app.Start();
         }
     }
 }

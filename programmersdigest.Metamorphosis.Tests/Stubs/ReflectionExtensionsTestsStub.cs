@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace programmersdigest.Metamorphosis.Tests.Stubs
 {
+    [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Some tests require specific method signatures.")]
+    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Some tests require specific method signatures.")]
     internal sealed class ReflectionExtensionsTestsStub
     {
         public void SimpleTestA()
