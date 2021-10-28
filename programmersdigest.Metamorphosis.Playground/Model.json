@@ -21,6 +21,10 @@
             "Type": "programmersdigest.Metamorphosis.Playground.SumComponent"
         },
         {
+            "Name": "VariadicConcatComponent",
+            "Type": "programmersdigest.Metamorphosis.Playground.VariadicConcatComponent"
+        },
+        {
             "Name": "AsyncTestComponent",
             "Type": "programmersdigest.Metamorphosis.Playground.AsyncTestComponent"
         },
@@ -59,6 +63,10 @@
         {
             "Signal": "TestComponent.Add",
             "Trigger": "SumComponent.Add"
+        },
+        {
+            "Signal": "TestComponent.VariadicConcat",
+            "Trigger": "VariadicConcatComponent.VariadicConcat"
         },
 
         {

@@ -114,11 +114,6 @@ namespace programmersdigest.Metamorphosis.Modelling
         private static MethodBuilder PrepareMethodOverride(TypeBuilder typeBuilder, MethodInfo baseMethod)
         {
             var signalMethodParameters = baseMethod.GetParameters();
-            if (signalMethodParameters.Length > 0 && signalMethodParameters.Last().IsDefined(typeof(ParamArrayAttribute), false))
-            {
-                throw new InvalidOperationException("Variadic method parameters are not supported.");
-            }
-
             var signalMethodParameterTypes = signalMethodParameters.Select(p => p.ParameterType).ToArray();
             var signalMethodParameterRequiredCustomModifiers = signalMethodParameters.Select(p => p.GetRequiredCustomModifiers()).ToArray();
             var signalMethodParameterOptionalCustomModifiers = signalMethodParameters.Select(p => p.GetOptionalCustomModifiers()).ToArray();
@@ -210,11 +205,6 @@ namespace programmersdigest.Metamorphosis.Modelling
         private static void GeneratePassthroughConstructor(TypeBuilder typeBuilder, ConstructorInfo baseTypeConstructor)
         {
             var parameters = baseTypeConstructor.GetParameters();
-            if (parameters.Length > 0 && parameters.Last().IsDefined(typeof(ParamArrayAttribute), false))
-            {
-                throw new InvalidOperationException("Variadic constructor parameters are not supported.");
-            }
-
             var parameterTypes = parameters.Select(p => p.ParameterType).ToArray();
             var parameterRequiredCustomModifiers = parameters.Select(p => p.GetRequiredCustomModifiers()).ToArray();
             var parameterOptionalCustomModifiers = parameters.Select(p => p.GetOptionalCustomModifiers()).ToArray();

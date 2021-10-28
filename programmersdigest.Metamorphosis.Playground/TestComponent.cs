@@ -22,6 +22,9 @@ namespace programmersdigest.Metamorphosis.Playground
             return a - b;
         }
 
+        [Signal]
+        protected abstract string VariadicConcat(params string[] variadicParameter);
+
         [Trigger]
         public void Startup()
         {
@@ -29,6 +32,9 @@ namespace programmersdigest.Metamorphosis.Playground
 
             var result = Add(17, 13);
             Log(result);
+
+            var concat = VariadicConcat("Test", "123", "456");
+            Log(concat);
         }
 
         [Trigger]
