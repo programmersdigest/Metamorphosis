@@ -62,6 +62,11 @@ namespace programmersdigest.Metamorphosis.Modelling
                                                              TypeAttributes.Class | TypeAttributes.Public | TypeAttributes.Sealed,
                                                              componentDefinition.BaseType);
 
+            foreach (var baseTypeConstructor in componentDefinition.BaseType.GetConstructors(BindingFlags.Public | BindingFlags.Instance))
+            {
+                GeneratePassthroughConstructor(proxyTypeBuilder, baseTypeConstructor);
+            }
+
             var dependenciesDictionary = GenerateDependencyFields(proxyTypeBuilder, componentDefinition.Dependencies);
 
             foreach (var signal in componentDefinition.Signals)
@@ -81,7 +86,7 @@ namespace programmersdigest.Metamorphosis.Modelling
                     }
 
                     var signalMethodOverride = PrepareMethodOverride(proxyTypeBuilder, signal.SignalMethod);
-                    GenerateIL(signalMethodOverride, signal, dependenciesDictionary);
+                    GenerateMethodOverrideIL(signalMethodOverride, signal, dependenciesDictionary);
                     proxyTypeBuilder.DefineMethodOverride(signalMethodOverride, signal.SignalMethod);
                 }
             }
@@ -89,7 +94,7 @@ namespace programmersdigest.Metamorphosis.Modelling
             componentDefinition.ProxyType = proxyTypeBuilder.CreateTypeInfo();
         }
 
-        private Dictionary<string, DependencyDefinition> GenerateDependencyFields(TypeBuilder typeBuilder, List<DependencyDefinition> dependencies)
+        private static Dictionary<string, DependencyDefinition> GenerateDependencyFields(TypeBuilder typeBuilder, List<DependencyDefinition> dependencies)
         {
             var dependenciesDictionary = new Dictionary<string, DependencyDefinition>();
 
@@ -104,12 +109,13 @@ namespace programmersdigest.Metamorphosis.Modelling
             return dependenciesDictionary;
         }
 
-        private MethodBuilder PrepareMethodOverride(TypeBuilder typeBuilder, MethodInfo baseMethod)
+        private static MethodBuilder PrepareMethodOverride(TypeBuilder typeBuilder, MethodInfo baseMethod)
         {
-            var signalMethodParameters = baseMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            var signalMethodParameters = baseMethod.GetParameters();
+            var signalMethodParameterTypes = signalMethodParameters.Select(p => p.ParameterType).ToArray();
             var signalMethodOverride = typeBuilder.DefineMethod(baseMethod.Name,
                 MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
-                baseMethod.ReturnType, signalMethodParameters);
+                baseMethod.ReturnType, signalMethodParameterTypes);
 
             if (baseMethod.IsGenericMethod)
             {
@@ -131,13 +137,33 @@ namespace programmersdigest.Metamorphosis.Modelling
                 }
             }
 
+            for (var i = 0; i < signalMethodParameters.Length; ++i)
+            {
+                var parameter = signalMethodParameters[i];
+                var parameterBuilder = signalMethodOverride.DefineParameter(i + 1, parameter.Attributes, parameter.Name);
+                if (((int)parameter.Attributes & (int)ParameterAttributes.HasDefault) != 0)
+                {
+                    parameterBuilder.SetConstant(parameter.RawDefaultValue);
+                }
+
+                foreach (var attribute in BuildCustomAttributes(parameter.GetCustomAttributesData()))
+                {
+                    parameterBuilder.SetCustomAttribute(attribute);
+                }
+            }
+
+            foreach (var attribute in BuildCustomAttributes(baseMethod.GetCustomAttributesData()))
+            {
+                signalMethodOverride.SetCustomAttribute(attribute);
+            }
+
             return signalMethodOverride;
         }
 
-        private void GenerateIL(MethodBuilder methodBuilder, SignalDefinition signal, Dictionary<string, DependencyDefinition> dependencies)
+        private static void GenerateMethodOverrideIL(MethodBuilder methodBuilder, SignalDefinition signal, Dictionary<string, DependencyDefinition> dependencies)
         {
             var ilGenerator = methodBuilder.GetILGenerator();
-            
+
             foreach (var connection in signal.Connections)
             {
                 var receiver = dependencies[connection.Receiver];
@@ -163,6 +189,68 @@ namespace programmersdigest.Metamorphosis.Modelling
             }
 
             ilGenerator.Emit(OpCodes.Ret);                                      // Return to caller.
+        }
+
+        private static void GeneratePassthroughConstructor(TypeBuilder typeBuilder, ConstructorInfo baseTypeConstructor)
+        {
+            var parameters = baseTypeConstructor.GetParameters();
+            if (parameters.Length > 0 && parameters.Last().IsDefined(typeof(ParamArrayAttribute), false))
+            {
+                throw new InvalidOperationException("Variadic constructors are not supported");
+            }
+
+            var parameterTypes = parameters.Select(p => p.ParameterType).ToArray();
+            var requiredCustomModifiers = parameters.Select(p => p.GetRequiredCustomModifiers()).ToArray();
+            var optionalCustomModifiers = parameters.Select(p => p.GetOptionalCustomModifiers()).ToArray();
+
+            var constructor = typeBuilder.DefineConstructor(
+                MethodAttributes.Public, baseTypeConstructor.CallingConvention,
+                parameterTypes, requiredCustomModifiers, optionalCustomModifiers);
+            for (var i = 0; i < parameters.Length; ++i)
+            {
+                var parameter = parameters[i];
+                var parameterBuilder = constructor.DefineParameter(i + 1, parameter.Attributes, parameter.Name);
+                if (((int)parameter.Attributes & (int)ParameterAttributes.HasDefault) != 0)
+                {
+                    parameterBuilder.SetConstant(parameter.RawDefaultValue);
+                }
+
+                foreach (var attribute in BuildCustomAttributes(parameter.GetCustomAttributesData()))
+                {
+                    parameterBuilder.SetCustomAttribute(attribute);
+                }
+            }
+
+            foreach (var attribute in BuildCustomAttributes(baseTypeConstructor.GetCustomAttributesData()))
+            {
+                constructor.SetCustomAttribute(attribute);
+            }
+
+            var emitter = constructor.GetILGenerator();
+            emitter.Emit(OpCodes.Nop);
+
+            // Load `this` and call base constructor with arguments
+            emitter.Emit(OpCodes.Ldarg_0);
+            for (var i = 1; i <= parameters.Length; ++i)
+            {
+                emitter.Emit(OpCodes.Ldarg, i);
+            }
+            emitter.Emit(OpCodes.Call, baseTypeConstructor);
+
+            emitter.Emit(OpCodes.Ret);
+        }
+
+        private static CustomAttributeBuilder[] BuildCustomAttributes(IEnumerable<CustomAttributeData> customAttributes)
+        {
+            return customAttributes.Select(attribute =>
+            {
+                var attributeArgs = attribute.ConstructorArguments.Select(a => a.Value).ToArray();
+                var namedPropertyInfos = attribute.NamedArguments.Select(a => a.MemberInfo).OfType<PropertyInfo>().ToArray();
+                var namedPropertyValues = attribute.NamedArguments.Where(a => a.MemberInfo is PropertyInfo).Select(a => a.TypedValue.Value).ToArray();
+                var namedFieldInfos = attribute.NamedArguments.Select(a => a.MemberInfo).OfType<FieldInfo>().ToArray();
+                var namedFieldValues = attribute.NamedArguments.Where(a => a.MemberInfo is FieldInfo).Select(a => a.TypedValue.Value).ToArray();
+                return new CustomAttributeBuilder(attribute.Constructor, attributeArgs, namedPropertyInfos, namedPropertyValues, namedFieldInfos, namedFieldValues);
+            }).ToArray();
         }
     }
 }

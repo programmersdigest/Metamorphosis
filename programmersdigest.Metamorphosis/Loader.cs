@@ -11,11 +11,13 @@ namespace programmersdigest.Metamorphosis
     internal sealed class Loader
     {
         private readonly string _modelFilename;
+        private readonly Func<ConstructorInfo[], object[]> _resolveConstructorParametersCallback;
         private IReadOnlyList<ComponentDefinition> _componentDefinitions;
 
-        public Loader(string modelFilename)
+        public Loader(string modelFilename, Func<ConstructorInfo[], object[]> resolveConstructorParametersCallback = null)
         {
             _modelFilename = modelFilename;
+            _resolveConstructorParametersCallback = resolveConstructorParametersCallback;
         }
 
         public void Init()
@@ -82,7 +84,8 @@ namespace programmersdigest.Metamorphosis
                 return;
             }
 
-            var instance = Activator.CreateInstance(componentDefinition.ProxyType);
+            var constructorParameters = _resolveConstructorParametersCallback?.Invoke(componentDefinition.ProxyType.GetConstructors()) ?? Array.Empty<object>();
+            var instance = Activator.CreateInstance(componentDefinition.ProxyType, constructorParameters);
 
             foreach (var dependency in componentDefinition.Dependencies)
             {
