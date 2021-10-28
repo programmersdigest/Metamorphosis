@@ -10,6 +10,9 @@ namespace programmersdigest.Metamorphosis.Modelling
 {
     internal sealed class ProxyGenerator
     {
+        private const string _proxyAssemblyName = "Metamorphosis.DynamicProxies";
+        private const string _proxyFieldNamePrefix = "__proxy_";
+
         private readonly AssemblyBuilder _assemblyBuilder;
         private readonly ModuleBuilder _moduleBuilder;
 
@@ -17,9 +20,9 @@ namespace programmersdigest.Metamorphosis.Modelling
 
         public ProxyGenerator()
         {
-            var assemblyName = new AssemblyName("Metamorphosis.DynamicProxies");
+            var assemblyName = new AssemblyName(_proxyAssemblyName);
             _assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            _moduleBuilder = _assemblyBuilder.DefineDynamicModule("Metamorphosis.DynamicProxies");
+            _moduleBuilder = _assemblyBuilder.DefineDynamicModule(_proxyAssemblyName);
         }
 
         public void GenerateProxyTypes(IReadOnlyList<ComponentDefinition> componentDefinitions)
@@ -99,7 +102,7 @@ namespace programmersdigest.Metamorphosis.Modelling
 
             foreach (var dependency in dependencies)
             {
-                var fieldBuilder = typeBuilder.DefineField($"__proxy_{dependency.Name}",
+                var fieldBuilder = typeBuilder.DefineField($"{_proxyFieldNamePrefix}{dependency.Name}",
                                                            dependency.ComponentDefinition.ProxyType, FieldAttributes.Private);
                 dependency.FieldBuilder = fieldBuilder;
                 dependenciesDictionary.Add(dependency.Name, dependency);
@@ -111,10 +114,24 @@ namespace programmersdigest.Metamorphosis.Modelling
         private static MethodBuilder PrepareMethodOverride(TypeBuilder typeBuilder, MethodInfo baseMethod)
         {
             var signalMethodParameters = baseMethod.GetParameters();
+            if (signalMethodParameters.Length > 0 && signalMethodParameters.Last().IsDefined(typeof(ParamArrayAttribute), false))
+            {
+                throw new InvalidOperationException("Variadic method parameters are not supported.");
+            }
+
             var signalMethodParameterTypes = signalMethodParameters.Select(p => p.ParameterType).ToArray();
-            var signalMethodOverride = typeBuilder.DefineMethod(baseMethod.Name,
+            var signalMethodParameterRequiredCustomModifiers = signalMethodParameters.Select(p => p.GetRequiredCustomModifiers()).ToArray();
+            var signalMethodParameterOptionalCustomModifiers = signalMethodParameters.Select(p => p.GetOptionalCustomModifiers()).ToArray();
+            var signalMethodOverride = typeBuilder.DefineMethod(
+                baseMethod.Name,
                 MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual,
-                baseMethod.ReturnType, signalMethodParameterTypes);
+                baseMethod.CallingConvention,
+                baseMethod.ReturnType,
+                baseMethod.ReturnParameter.GetRequiredCustomModifiers(),
+                baseMethod.ReturnParameter.GetOptionalCustomModifiers(),
+                signalMethodParameterTypes,
+                signalMethodParameterRequiredCustomModifiers,
+                signalMethodParameterOptionalCustomModifiers);
 
             if (baseMethod.IsGenericMethod)
             {
@@ -187,7 +204,7 @@ namespace programmersdigest.Metamorphosis.Modelling
                 ilGenerator.Emit(OpCodes.Callvirt, triggerMethod);                  // Call trigger method on receiver instance.
             }
 
-            ilGenerator.Emit(OpCodes.Ret);                                      // Return to caller.
+            ilGenerator.Emit(OpCodes.Ret);                                          // Return to caller.
         }
 
         private static void GeneratePassthroughConstructor(TypeBuilder typeBuilder, ConstructorInfo baseTypeConstructor)
@@ -195,16 +212,19 @@ namespace programmersdigest.Metamorphosis.Modelling
             var parameters = baseTypeConstructor.GetParameters();
             if (parameters.Length > 0 && parameters.Last().IsDefined(typeof(ParamArrayAttribute), false))
             {
-                throw new InvalidOperationException("Variadic constructors are not supported");
+                throw new InvalidOperationException("Variadic constructor parameters are not supported.");
             }
 
             var parameterTypes = parameters.Select(p => p.ParameterType).ToArray();
-            var requiredCustomModifiers = parameters.Select(p => p.GetRequiredCustomModifiers()).ToArray();
-            var optionalCustomModifiers = parameters.Select(p => p.GetOptionalCustomModifiers()).ToArray();
+            var parameterRequiredCustomModifiers = parameters.Select(p => p.GetRequiredCustomModifiers()).ToArray();
+            var parameterOptionalCustomModifiers = parameters.Select(p => p.GetOptionalCustomModifiers()).ToArray();
 
             var constructor = typeBuilder.DefineConstructor(
-                MethodAttributes.Public, baseTypeConstructor.CallingConvention,
-                parameterTypes, requiredCustomModifiers, optionalCustomModifiers);
+                MethodAttributes.Public,
+                baseTypeConstructor.CallingConvention,
+                parameterTypes,
+                parameterRequiredCustomModifiers,
+                parameterOptionalCustomModifiers);
             for (var i = 0; i < parameters.Length; ++i)
             {
                 var parameter = parameters[i];
@@ -225,18 +245,16 @@ namespace programmersdigest.Metamorphosis.Modelling
                 constructor.SetCustomAttribute(attribute);
             }
 
-            var emitter = constructor.GetILGenerator();
-            emitter.Emit(OpCodes.Nop);
+            var ilGenerator = constructor.GetILGenerator();
 
-            // Load `this` and call base constructor with arguments
-            emitter.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldarg_0);                                  // Load "this".
             for (var i = 1; i <= parameters.Length; ++i)
             {
-                emitter.Emit(OpCodes.Ldarg, i);
+                ilGenerator.Emit(OpCodes.Ldarg, i);                             // Load all parameters.
             }
-            emitter.Emit(OpCodes.Call, baseTypeConstructor);
+            ilGenerator.Emit(OpCodes.Call, baseTypeConstructor);                // Call base constructor.
 
-            emitter.Emit(OpCodes.Ret);
+            ilGenerator.Emit(OpCodes.Ret);                                      // Return to caller.
         }
 
         private static CustomAttributeBuilder[] BuildCustomAttributes(IEnumerable<CustomAttributeData> customAttributes)
